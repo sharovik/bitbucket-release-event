@@ -11,6 +11,13 @@ The event accepts multiple pull-requests for multiple repositories. If there is 
 ## Prerequisites
 Before you will start use this event please be aware of these steps
 
+### Install it into your devbot project
+1. clone this repository into `events/` folder of your devbot project
+2. add this event into `defined-events.go` file to the defined events map object
+``` 
+DefinedEvents.Events[bitbucket_release.EventName] = bitbucket_release.Event
+```
+
 ### Prepare environment variables in your .env
 Copy and paste everything from the **#Bitbucket** section in `.env.example` file into `.env` file
 
