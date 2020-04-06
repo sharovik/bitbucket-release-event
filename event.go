@@ -2,22 +2,23 @@ package bitbucket_release
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/sharovik/devbot/internal/container"
 	"github.com/sharovik/devbot/internal/dto"
 	"github.com/sharovik/devbot/internal/log"
-	"time"
 )
 
 //EventName the name of the event
 const (
-	EventName            = "bitbucket_release"
-	EventVersion         = "1.0.0"
+	EventName         = "bitbucket_release"
+	EventVersion      = "1.0.0"
 	pullRequestsRegex = `(?m)https:\/\/bitbucket.org\/(?P<workspace>.+)\/(?P<repository_slug>.+)\/pull-requests\/(?P<pull_request_id>\d+)`
 
 	pullRequestStringAnswer   = "I found the next pull-requests:\n"
 	noPullRequestStringAnswer = `I can't find any pull-request in your message`
 
-	pullRequestStateOpen = "OPEN"
+	pullRequestStateOpen   = "OPEN"
 	pullRequestStateMerged = "MERGED"
 )
 
@@ -68,7 +69,7 @@ func (e BitBucketReleaseEvent) Install() error {
 			Str("event_version", EventVersion).
 			Msg("Event wasn't installed. Trying to install it")
 
-		eventId, err := container.C.Dictionary.InsertEvent(EventName)
+		eventId, err := container.C.Dictionary.InsertEvent(EventName, EventVersion)
 		if err != nil {
 			log.Logger().AddError(err).Msg("Error during FindEventBy method execution")
 			return err

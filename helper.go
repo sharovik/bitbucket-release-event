@@ -3,13 +3,14 @@ package bitbucket_release
 import (
 	"errors"
 	"fmt"
-	"github.com/sharovik/devbot/internal/container"
-	"github.com/sharovik/devbot/internal/dto"
-	"github.com/sharovik/devbot/internal/log"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/sharovik/devbot/internal/container"
+	"github.com/sharovik/devbot/internal/dto"
+	"github.com/sharovik/devbot/internal/log"
 )
 
 func failedPullRequestsText(failedPullRequests map[string]failedToMerge) string {
@@ -211,7 +212,7 @@ func releaseThePullRequests(canBeMergedPullRequestList map[string]PullRequest, c
 
 func createReleasePullRequest(workspace string, repository string, releaseBranch dto.BitBucketResponseBranchCreate, description string) (string, error) {
 	bitBucketPullRequestCreate := dto.BitBucketRequestPullRequestCreate{
-		Title: "Release pull-request",
+		Title:       "Release pull-request",
 		Description: description,
 		Source: dto.BitBucketPullRequestDestination{
 			Branch: dto.BitBucketPullRequestDestinationBranch{
@@ -244,8 +245,8 @@ func createReleasePullRequest(workspace string, repository string, releaseBranch
 
 func mergePullRequests(pullRequests map[string]PullRequest) (string, error) {
 	var (
-		releaseText string
-		repository = ""
+		releaseText     string
+		repository      = ""
 		lastPullRequest = PullRequest{}
 	)
 
