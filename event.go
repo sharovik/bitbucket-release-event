@@ -92,7 +92,7 @@ func (e BitBucketReleaseEvent) Install() error {
 			Int64("scenario_id", scenarioID).
 			Msg("Scenario installed")
 
-		questionID, err := container.C.Dictionary.InsertQuestion("generate wordpress template", "Ok, let me check this archive", scenarioID, "(?i)process", "")
+		questionID, err := container.C.Dictionary.InsertQuestion("bb release", "Ok, let me check these pull-requests", scenarioID, "(?i)bb release", "")
 		if err != nil {
 			return err
 		}
