@@ -57,19 +57,19 @@ func (e BitBucketReleaseEvent) Install() error {
 		Str("event_name", EventName).
 		Str("event_version", EventVersion).
 		Msg("Start event Install")
-	eventId, err := container.C.Dictionary.FindEventByAlias(EventName)
+	eventID, err := container.C.Dictionary.FindEventByAlias(EventName)
 	if err != nil {
 		log.Logger().AddError(err).Msg("Error during FindEventBy method execution")
 		return err
 	}
 
-	if eventId == 0 {
+	if eventID == 0 {
 		log.Logger().Info().
 			Str("event_name", EventName).
 			Str("event_version", EventVersion).
 			Msg("Event wasn't installed. Trying to install it")
 
-		eventId, err := container.C.Dictionary.InsertEvent(EventName, EventVersion)
+		eventID, err := container.C.Dictionary.InsertEvent(EventName, EventVersion)
 		if err != nil {
 			log.Logger().AddError(err).Msg("Error during FindEventBy method execution")
 			return err
@@ -78,8 +78,30 @@ func (e BitBucketReleaseEvent) Install() error {
 		log.Logger().Debug().
 			Str("event_name", EventName).
 			Str("event_version", EventVersion).
-			Int64("event_id", eventId).
+			Int64("event_id", eventID).
 			Msg("Event installed")
+
+		scenarioID, err := container.C.Dictionary.InsertScenario(EventName, eventID)
+		if err != nil {
+			return err
+		}
+
+		log.Logger().Debug().
+			Str("event_name", EventName).
+			Str("event_version", EventVersion).
+			Int64("scenario_id", scenarioID).
+			Msg("Scenario installed")
+
+		questionID, err := container.C.Dictionary.InsertQuestion("generate wordpress template", "Ok, let me check this archive", scenarioID, "(?i)process", "")
+		if err != nil {
+			return err
+		}
+
+		log.Logger().Debug().
+			Str("event_name", EventName).
+			Str("event_version", EventVersion).
+			Int64("question_id", questionID).
+			Msg("Question installed")
 	}
 
 	return nil

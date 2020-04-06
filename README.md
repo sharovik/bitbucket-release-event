@@ -17,8 +17,12 @@ git clone git@github.com:sharovik/bitbucket-release-event.git events/bitbucket_r
 ```
 
 ### Install it into your devbot project
-1. clone this repository into `events/` folder of your devbot project
-2. add this event into `defined-events.go` file to the defined events map object
+1. clone this repository into `events/` folder of your devbot project. Please make sure to use `bitbucket_release` folder name for this event 
+2. add into imports path to this event in `defined-events.go` file
+``` 
+import "github.com/sharovik/devbot/events/bitbucket_release"
+```
+3. add this event into `defined-events.go` file to the defined events map object
 ``` 
 DefinedEvents.Events[bitbucket_release.EventName] = bitbucket_release.Event
 ```
