@@ -147,8 +147,8 @@ func (BitBucketReleaseEvent) Execute(message dto.SlackRequestChatPostMessage) (d
 
 		response, statusCode, err := container.C.SlackClient.SendMessage(dto.SlackRequestChatPostMessage{
 			Channel:           container.C.Config.BitBucketConfig.ReleaseChannel,
-			Text:              fmt.Sprintf("The user <@%s> asked me to start the release and here is the result:%s", answer.OriginalMessage.User, resultText),
-			AsUser:            false,
+			Text:              fmt.Sprintf("There were release triggered by <@%s>. %s", answer.OriginalMessage.User, resultText),
+			AsUser:            true,
 			Ts:                time.Time{},
 			DictionaryMessage: dto.DictionaryMessage{},
 			OriginalMessage:   dto.SlackResponseEventMessage{},
@@ -159,8 +159,6 @@ func (BitBucketReleaseEvent) Execute(message dto.SlackRequestChatPostMessage) (d
 				Interface("response", response).
 				Interface("status", statusCode).
 				Msg("Failed to sent answer message")
-
-			answer.Text += fmt.Sprintf("\nI tried to notify the release channel and I failed. Reason: `%s`", err)
 		}
 	}
 

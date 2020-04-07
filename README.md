@@ -21,6 +21,8 @@ https://bitbucket.org/your-workspace}/{your-first-repository/pull-requests/35/re
 In the answer you will receive the status update of the merge process. 
 If there will be more then 2 pull-requests per repository, the bot will try to create a release branch, merge all pull-requests into that branch and then will create the release-pull-request from that branch and share it into the channel.
 
+Also you can configure bot to send the report after each "event trigger" to the specific channel.
+
 ## Prerequisites
 Before you will start use this event please be aware of these steps
 
