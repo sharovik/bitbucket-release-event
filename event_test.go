@@ -143,7 +143,7 @@ func TestBitBucketReleaseEvent_Execute_ErrorDuringPRMerge(t *testing.T) {
 	answer, err := Event.Execute(msg)
 	assert.Error(t, err)
 
-	expectedText := "I found the next pull-requests:\nPull-request #1 [repository: test-repo]\n\nAll pull-requests are ready for merge! This is awesome!\nNext pull-requests is will be merged:\n[#1] https://bitbucket.org/john/test-repo/pull-requests/1 \nWe have only one pull-request, so I will try to merge it directly to the main branch.\nI cannot merge the pull-request #1 because of error `Failed to merge `\n"
+	expectedText := "I found the next pull-requests:\nPull-request #1 [repository: test-repo]\n\nNext pull-requests is will be merged:\n[#1] https://bitbucket.org/john/test-repo/pull-requests/1 \nWe have only one pull-request, so I will try to merge it directly to the main branch.\nI cannot merge the pull-request #1 because of error `Failed to merge `\n"
 	assert.Equal(t, expectedText, answer.Text)
 }
 
@@ -199,6 +199,6 @@ func TestBitBucketReleaseEvent_Execute_PRMerged(t *testing.T) {
 	answer, err := Event.Execute(msg)
 	assert.NoError(t, err)
 
-	expectedText := "I found the next pull-requests:\nPull-request #1 [repository: test-repo]\n\nAll pull-requests are ready for merge! This is awesome!\nNext pull-requests is will be merged:\n[#1] https://bitbucket.org/john/test-repo/pull-requests/1 \n\nWe have only one pull-request, so I will try to merge it directly to the main branch.\n\nI merged pull-request #`1` into destination branch of repository `test-repo` :)\n"
+	expectedText := "I found the next pull-requests:\nPull-request #1 [repository: test-repo]\n\nNext pull-requests is will be merged:\n[#1] https://bitbucket.org/john/test-repo/pull-requests/1 \n\nWe have only one pull-request, so I will try to merge it directly to the main branch.\n\nI merged pull-request #`1` into destination branch of repository `test-repo` :)\n"
 	assert.Equal(t, expectedText, answer.Text)
 }

@@ -124,7 +124,7 @@ func (BitBucketReleaseEvent) Execute(message dto.SlackRequestChatPostMessage) (d
 	canBeMergedPullRequestsList, canBeMergedByRepository, failedPullRequests := checkPullRequests(foundPullRequests.Items)
 
 	//We generate text for pull-requests which cannot be merged
-	if len(canBeMergedPullRequestsList) > 0 {
+	if len(canBeMergedPullRequestsList) == 0 {
 		answer.Text += fmt.Sprintf("\n%s", failedPullRequestsText(failedPullRequests))
 	}
 
