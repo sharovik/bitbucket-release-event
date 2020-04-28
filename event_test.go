@@ -47,8 +47,8 @@ func TestBitBucketReleaseEvent_Execute_NoReviewers(t *testing.T) {
 		},
 	}
 
-	var msg = dto.SlackRequestChatPostMessage{
-		OriginalMessage: dto.SlackResponseEventMessage{
+	var msg = dto.BaseChatMessage{
+		OriginalMessage: dto.BaseOriginalMessage{
 			Text: `release these pull-requests to production: https://bitbucket.org/john/test-repo/pull-requests/1/testing-pr-flow`,
 		},
 	}
@@ -90,8 +90,8 @@ func TestBitBucketReleaseEvent_Execute_HasReviewersButNotApproved(t *testing.T) 
 		},
 	}
 
-	var msg = dto.SlackRequestChatPostMessage{
-		OriginalMessage: dto.SlackResponseEventMessage{
+	var msg = dto.BaseChatMessage{
+		OriginalMessage: dto.BaseOriginalMessage{
 			Text: `release these pull-requests to production: https://bitbucket.org/john/test-repo/pull-requests/1/testing-pr-flow`,
 		},
 	}
@@ -134,8 +134,8 @@ func TestBitBucketReleaseEvent_Execute_ErrorDuringPRMerge(t *testing.T) {
 		MergePullRequestError: errors.New("Failed to merge "),
 	}
 
-	var msg = dto.SlackRequestChatPostMessage{
-		OriginalMessage: dto.SlackResponseEventMessage{
+	var msg = dto.BaseChatMessage{
+		OriginalMessage: dto.BaseOriginalMessage{
 			Text: `release these pull-requests to production: https://bitbucket.org/john/test-repo/pull-requests/1/testing-pr-flow`,
 		},
 	}
@@ -190,8 +190,8 @@ func TestBitBucketReleaseEvent_Execute_PRMerged(t *testing.T) {
 		},
 	}
 
-	var msg = dto.SlackRequestChatPostMessage{
-		OriginalMessage: dto.SlackResponseEventMessage{
+	var msg = dto.BaseChatMessage{
+		OriginalMessage: dto.BaseOriginalMessage{
 			Text: `release these pull-requests to production: https://bitbucket.org/john/test-repo/pull-requests/1/testing-pr-flow`,
 		},
 	}

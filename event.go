@@ -111,7 +111,7 @@ func (e BitBucketReleaseEvent) Update() error {
 	return nil
 }
 
-func (BitBucketReleaseEvent) Execute(message dto.SlackRequestChatPostMessage) (dto.SlackRequestChatPostMessage, error) {
+func (BitBucketReleaseEvent) Execute(message dto.BaseChatMessage) (dto.BaseChatMessage, error) {
 	var answer = message
 
 	//First we need to find all the pull-requests in received message
