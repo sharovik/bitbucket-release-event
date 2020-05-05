@@ -12,8 +12,9 @@ import (
 //EventName the name of the event
 const (
 	EventName         = "bitbucket_release"
-	EventVersion      = "1.0.0"
+	EventVersion      = "1.0.1"
 	pullRequestsRegex = `(?m)https:\/\/bitbucket.org\/(?P<workspace>.+)\/(?P<repository_slug>.+)\/pull-requests\/(?P<pull_request_id>\d+)`
+	helpMessage = "Send me message ```bb release {links-to-pull-requests}```."
 
 	pullRequestStringAnswer   = "I found the next pull-requests:\n"
 	noPullRequestStringAnswer = `I can't find any pull-request in your message`
@@ -111,8 +112,18 @@ func (e BitBucketReleaseEvent) Update() error {
 	return nil
 }
 
-func (BitBucketReleaseEvent) Execute(message dto.SlackRequestChatPostMessage) (dto.SlackRequestChatPostMessage, error) {
+func (BitBucketReleaseEvent) Execute(message dto.BaseChatMessage) (dto.BaseChatMessage, error) {
 	var answer = message
+
+	isHelpAnswerTriggered, err := helpMessageShouldBeTriggered(answer.OriginalMessage.Text)
+	if err != nil {
+		log.Logger().Warn().Err(err).Msg("Something went wrong with help message parsing")
+	}
+
+	if isHelpAnswerTriggered {
+		answer.Text = helpMessage
+		return answer, nil
+	}
 
 	//First we need to find all the pull-requests in received message
 	foundPullRequests := findAllPullRequestsInText(pullRequestsRegex, answer.OriginalMessage.Text)
