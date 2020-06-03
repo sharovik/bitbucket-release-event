@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sharovik/devbot/internal/client"
+
 	"github.com/sharovik/devbot/internal/container"
 	"github.com/sharovik/devbot/internal/dto"
 	"github.com/sharovik/devbot/internal/log"
@@ -114,7 +116,7 @@ func releaseThePullRequests(canBeMergedPullRequestList map[string]PullRequest, c
 	if len(canBeMergedPullRequestList) == 1 {
 		log.Logger().Debug().Msg("There is only 1 received pull-request. Trying to merge it.")
 		releaseText = fmt.Sprintf("We have only one pull-request, so I will try to merge it directly to the main branch.\n")
-		newText, err := mergePullRequests(canBeMergedPullRequestList)
+		newText, err := mergePullRequests(canBeMergedPullRequestList, client.StrategySquash)
 		releaseText += fmt.Sprintf("%s\n", newText)
 		if err != nil {
 			log.Logger().AddError(err).Msg("Failed to merge the pull-request")
@@ -136,7 +138,7 @@ func releaseThePullRequests(canBeMergedPullRequestList map[string]PullRequest, c
 			log.Logger().Debug().Str("repository", repository).Msg("Only one pull-request received for selected repository")
 
 			releaseText = fmt.Sprintf("There is only one pull-request for selected repository `%s`.", repository)
-			newText, err := mergePullRequests(pullRequests)
+			newText, err := mergePullRequests(pullRequests, client.StrategySquash)
 			releaseText += fmt.Sprintf("%s\n", newText)
 			if err != nil {
 				log.Logger().AddError(err).Msg("Received error during pull-request merge")
@@ -188,7 +190,7 @@ func releaseThePullRequests(canBeMergedPullRequestList map[string]PullRequest, c
 		}
 
 		releaseText += fmt.Sprintf("\nTrying to merge the %d pull-requests to the `%s` branch  of `%s` repository", len(pullRequests), releaseBranchName, repository)
-		newText, err := mergePullRequests(pullRequests)
+		newText, err := mergePullRequests(pullRequests, client.StrategyMerge)
 		releaseText += fmt.Sprintf("\n%s", newText)
 		if err != nil {
 			log.Logger().AddError(err).Msg("Received error during pull-request merge")
@@ -228,8 +230,6 @@ func createReleasePullRequest(workspace string, repository string, releaseBranch
 		}
 	}
 
-	fmt.Println(bitBucketPullRequestCreate.Reviewers)
-
 	response, err := container.C.BibBucketClient.CreatePullRequest(workspace, repository, bitBucketPullRequestCreate)
 	if err != nil {
 		return "", err
@@ -243,7 +243,7 @@ func createReleasePullRequest(workspace string, repository string, releaseBranch
 	return response.Links.HTML.Href, nil
 }
 
-func mergePullRequests(pullRequests map[string]PullRequest) (string, error) {
+func mergePullRequests(pullRequests map[string]PullRequest, strategy string) (string, error) {
 	var (
 		releaseText     string
 		repository      = ""
@@ -257,7 +257,7 @@ func mergePullRequests(pullRequests map[string]PullRequest) (string, error) {
 			repository = pullRequest.RepositorySlug
 		}
 
-		response, err := container.C.BibBucketClient.MergePullRequest(pullRequest.Workspace, pullRequest.RepositorySlug, pullRequest.ID, pullRequest.Description)
+		response, err := container.C.BibBucketClient.MergePullRequest(pullRequest.Workspace, pullRequest.RepositorySlug, pullRequest.ID, pullRequest.Description, strategy)
 		if err != nil {
 			releaseText += fmt.Sprintf("I cannot merge the pull-request #%d because of error `%s`", pullRequest.ID, err.Error())
 			log.Logger().Info().
