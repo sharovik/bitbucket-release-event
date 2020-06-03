@@ -1,4 +1,4 @@
-package bitbucket_release
+package bitbucketrelease
 
 import (
 	"fmt"
