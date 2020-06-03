@@ -53,60 +53,21 @@ type failedToMerge struct {
 	Error  error
 }
 
-//Install method installs the event into the database
+//Install method for installation of event
 func (e ReleaseEvent) Install() error {
 	log.Logger().Debug().
 		Str("event_name", EventName).
 		Str("event_version", EventVersion).
-		Msg("Start event Install")
-	eventID, err := container.C.Dictionary.FindEventByAlias(EventName)
-	if err != nil {
-		log.Logger().AddError(err).Msg("Error during FindEventBy method execution")
-		return err
-	}
+		Msg("Triggered event installation")
 
-	if eventID == 0 {
-		log.Logger().Info().
-			Str("event_name", EventName).
-			Str("event_version", EventVersion).
-			Msg("Event wasn't installed. Trying to install it")
-
-		eventID, err := container.C.Dictionary.InsertEvent(EventName, EventVersion)
-		if err != nil {
-			log.Logger().AddError(err).Msg("Error during FindEventBy method execution")
-			return err
-		}
-
-		log.Logger().Debug().
-			Str("event_name", EventName).
-			Str("event_version", EventVersion).
-			Int64("event_id", eventID).
-			Msg("Event installed")
-
-		scenarioID, err := container.C.Dictionary.InsertScenario(EventName, eventID)
-		if err != nil {
-			return err
-		}
-
-		log.Logger().Debug().
-			Str("event_name", EventName).
-			Str("event_version", EventVersion).
-			Int64("scenario_id", scenarioID).
-			Msg("Scenario installed")
-
-		questionID, err := container.C.Dictionary.InsertQuestion("bb release", "Ok, let me check these pull-requests", scenarioID, "(?i)bb release", "")
-		if err != nil {
-			return err
-		}
-
-		log.Logger().Debug().
-			Str("event_name", EventName).
-			Str("event_version", EventVersion).
-			Int64("question_id", questionID).
-			Msg("Question installed")
-	}
-
-	return nil
+	return container.C.Dictionary.InstallEvent(
+		EventName,      //We specify the event name which will be used for scenario generation
+		EventVersion,   //This will be set during the event creation
+		"bb release", //Actual question, which system will wait and which will trigger our event
+		"Ok, let me check these pull-requests", //Answer which will be used by the bot
+		"(?i)bb release", //Optional field. This is regular expression which can be used for question parsing.
+		"", //Optional field. This is a regex group and it can be used for parsing the match group from the regexp result
+	)
 }
 
 //Update the method applies updates
