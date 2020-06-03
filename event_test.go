@@ -248,7 +248,7 @@ func TestBitBucketReleaseEvent_ExecuteHelp(t *testing.T) {
 
 	var msg = dto.BaseChatMessage{
 		OriginalMessage: dto.BaseOriginalMessage{
-			Text: `bb release help`,
+			Text: `bb release --help`,
 		},
 	}
 

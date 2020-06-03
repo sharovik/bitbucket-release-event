@@ -2,6 +2,7 @@ package bitbucketrelease
 
 import (
 	"fmt"
+	"github.com/sharovik/devbot/internal/helper"
 	"time"
 
 	"github.com/sharovik/devbot/internal/container"
@@ -79,7 +80,7 @@ func (e ReleaseEvent) Update() error {
 func (ReleaseEvent) Execute(message dto.BaseChatMessage) (dto.BaseChatMessage, error) {
 	var answer = message
 
-	isHelpAnswerTriggered, err := helpMessageShouldBeTriggered(answer.OriginalMessage.Text)
+	isHelpAnswerTriggered, err := helper.HelpMessageShouldBeTriggered(answer.OriginalMessage.Text)
 	if err != nil {
 		log.Logger().Warn().Err(err).Msg("Something went wrong with help message parsing")
 	}
