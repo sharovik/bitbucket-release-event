@@ -51,6 +51,7 @@ type failedToMerge struct {
 	Reason string
 	Info   dto.BitBucketPullRequestInfoResponse
 	Error  error
+	PullRequest PullRequest
 }
 
 func (e BitBucketReleaseEvent) Install() error {
@@ -134,8 +135,12 @@ func (BitBucketReleaseEvent) Execute(message dto.BaseChatMessage) (dto.BaseChatM
 	//Next step is a pull-request statuses check
 	canBeMergedPullRequestsList, canBeMergedByRepository, failedPullRequests := checkPullRequests(foundPullRequests.Items)
 
+	if len(failedPullRequests) > 0 {
+		filterOutFailedRepositories(failedPullRequests, canBeMergedPullRequestsList, canBeMergedByRepository)
+	}
+
 	//We generate text for pull-requests which cannot be merged
-	if len(canBeMergedPullRequestsList) == 0 {
+	if len(failedPullRequests) > 0 {
 		answer.Text += fmt.Sprintf("\n%s", failedPullRequestsText(failedPullRequests))
 	}
 

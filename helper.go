@@ -55,6 +55,7 @@ func checkPullRequests(items []PullRequest) (map[string]PullRequest, map[string]
 				Reason: err.Error(),
 				Info:   info,
 				Error:  err,
+				PullRequest: pullRequest,
 			}
 
 			continue
@@ -69,6 +70,7 @@ func checkPullRequests(items []PullRequest) (map[string]PullRequest, map[string]
 				Reason: fmt.Sprintf("The state should be %s, instead of it %s received.", pullRequestStateOpen, info.State),
 				Info:   info,
 				Error:  nil,
+				PullRequest: pullRequest,
 			}
 
 			continue
@@ -86,6 +88,7 @@ func checkPullRequests(items []PullRequest) (map[string]PullRequest, map[string]
 				Reason: "The pull-request should be approved by one of the required reviewers.",
 				Info:   info,
 				Error:  nil,
+				PullRequest: pullRequest,
 			}
 
 			continue
@@ -401,6 +404,15 @@ func prepareReleaseTitle(currentTitle string) string {
 	}
 
 	return currentTitle
+}
+
+func filterOutFailedRepositories(failedPullRequests map[string]failedToMerge, canBeMergedPullRequestsList map[string]PullRequest, canBeMergedByRepository map[string]map[string]PullRequest) (map[string]PullRequest, map[string]map[string]PullRequest) {
+	for url, pullRequest := range failedPullRequests {
+		delete(canBeMergedPullRequestsList, url)
+		delete(canBeMergedByRepository, pullRequest.PullRequest.RepositorySlug)
+	}
+
+	return canBeMergedPullRequestsList, canBeMergedByRepository
 }
 
 func helpMessageShouldBeTriggered(text string) (bool, error) {
