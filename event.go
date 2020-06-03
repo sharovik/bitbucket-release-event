@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sharovik/devbot/internal/helper"
 
 	"github.com/sharovik/devbot/internal/container"
 	"github.com/sharovik/devbot/internal/dto"
@@ -61,11 +60,6 @@ func (e BitBucketReleaseEvent) Install() error {
 		Str("event_name", EventName).
 		Str("event_version", EventVersion).
 		Msg("Start event Install")
-	eventID, err := container.C.Dictionary.FindEventByAlias(EventName)
-	if err != nil {
-		log.Logger().AddError(err).Msg("Error during FindEventBy method execution")
-		return err
-	}
 
 	return container.C.Dictionary.InstallEvent(
 		EventName,                              //We specify the event name which will be used for scenario generation
