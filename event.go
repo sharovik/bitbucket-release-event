@@ -1,4 +1,4 @@
-package bitbucket_release
+package bitbucketrelease
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ const (
 	EventName         = "bitbucket_release"
 	EventVersion      = "1.0.1"
 	pullRequestsRegex = `(?m)https:\/\/bitbucket.org\/(?P<workspace>.+)\/(?P<repository_slug>.+)\/pull-requests\/(?P<pull_request_id>\d+)`
-	helpMessage = "Send me message ```bb release {links-to-pull-requests}```."
+	helpMessage       = "Send me message ```bb release {links-to-pull-requests}```."
 
 	pullRequestStringAnswer   = "I found the next pull-requests:\n"
 	noPullRequestStringAnswer = `I can't find any pull-request in your message`
@@ -37,13 +37,13 @@ type PullRequest struct {
 	Description    string
 }
 
-//BitBucketReleaseEvent event of BitBucket release
-type BitBucketReleaseEvent struct {
+//ReleaseEvent event of BitBucket release
+type ReleaseEvent struct {
 	EventName string
 }
 
 //Event - object which is ready to use
-var Event = BitBucketReleaseEvent{
+var Event = ReleaseEvent{
 	EventName: EventName,
 }
 
@@ -53,7 +53,8 @@ type failedToMerge struct {
 	Error  error
 }
 
-func (e BitBucketReleaseEvent) Install() error {
+//Install method installs the event into the database
+func (e ReleaseEvent) Install() error {
 	log.Logger().Debug().
 		Str("event_name", EventName).
 		Str("event_version", EventVersion).
@@ -108,11 +109,13 @@ func (e BitBucketReleaseEvent) Install() error {
 	return nil
 }
 
-func (e BitBucketReleaseEvent) Update() error {
+//Update the method applies updates
+func (e ReleaseEvent) Update() error {
 	return nil
 }
 
-func (BitBucketReleaseEvent) Execute(message dto.BaseChatMessage) (dto.BaseChatMessage, error) {
+//Execute the main method for event execution
+func (ReleaseEvent) Execute(message dto.BaseChatMessage) (dto.BaseChatMessage, error) {
 	var answer = message
 
 	isHelpAnswerTriggered, err := helpMessageShouldBeTriggered(answer.OriginalMessage.Text)
