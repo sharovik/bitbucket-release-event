@@ -16,7 +16,7 @@ bb release
 https://bitbucket.org/{your-workspace}/{your-first-repository}/pull-requests/1/readmemd-edited-online-with-bitbucket/diff
 https://bitbucket.org/{your-workspace}/{your-second-repository}/pull-requests/20
 https://bitbucket.org/{your-workspace}/{your-second-repository}/pull-requests/36/release-pull-request/diff
-https://bitbucket.org/your-workspace}/{your-first-repository/pull-requests/35/release-pull-request/diff
+https://bitbucket.org/{your-workspace}/{your-first-repository}/pull-requests/35/release-pull-request/diff
 ```
 The bot tries to parse all pull-requests from your message and does several pull-requests checks:
 1. check the current state of the pull-request. If it's state is different then OPEN, the pull-request cannot be merged
@@ -28,23 +28,26 @@ If there will be more then 2 pull-requests per repository, the bot will try to c
 
 Also you can configure bot to send the report after each "event trigger" to the specific channel. 
 
+------
+You always can ask bot `bb release --help` to see the usage of that command.
+
 ## Prerequisites
 Before you will start use this event please be aware of these steps
 
 ### Clone into devbot project
 ```
-git clone git@github.com:sharovik/bitbucket-release-event.git events/bitbucket_release
+git clone git@github.com:sharovik/bitbucket-release-event.git events/bitbucketrelease
 ```
 
 ### Install it into your devbot project
-1. clone this repository into `events/` folder of your devbot project. Please make sure to use `bitbucket_release` folder name for this event 
+1. clone this repository into `events/` folder of your devbot project. Please make sure to use `bitbucketrelease` folder name for this event 
 2. add into imports path to this event in `defined-events.go` file
 ``` 
-import "github.com/sharovik/devbot/events/bitbucket_release"
+import "github.com/sharovik/devbot/events/bitbucketrelease"
 ```
 3. add this event into `defined-events.go` file to the defined events map object
 ``` 
-DefinedEvents.Events[bitbucket_release.EventName] = bitbucket_release.Event
+DefinedEvents.Events[bitbucketrelease.EventName] = bitbucketrelease.Event
 ```
 
 ### Prepare environment variables in your .env
