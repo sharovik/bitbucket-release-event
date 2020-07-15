@@ -215,37 +215,6 @@ func TestBitBucketReleaseEvent_ExecuteHelp(t *testing.T) {
 		},
 	}
 
-	//PullRequest status OPEN but no participants
-	container.C.BibBucketClient = &mock.MockedBitBucketClient{
-		IsTokenInvalid: true,
-		PullRequestInfoResponse: dto.BitBucketPullRequestInfoResponse{
-			Title:       "Some title",
-			Description: "Feature;Some task description;\\(https://some-url.net/browse/error-502\\);JohnDoeProject",
-			State:       pullRequestStateOpen,
-			Participants: []dto.Participant{
-				dto.Participant{
-					User: dto.ParticipantUser{
-						UUID: "{test-uid}",
-					},
-					Approved: true,
-				},
-			},
-		},
-		MergePullRequestResponse: dto.BitBucketPullRequestInfoResponse{
-			Title:       "Some title",
-			Description: "Feature;Some task description;\\(https://some-url.net/browse/error-502\\);JohnDoeProject",
-			State:       pullRequestStateMerged,
-			Participants: []dto.Participant{
-				dto.Participant{
-					User: dto.ParticipantUser{
-						UUID: "{test-uid}",
-					},
-					Approved: true,
-				},
-			},
-		},
-	}
-
 	var msg = dto.BaseChatMessage{
 		OriginalMessage: dto.BaseOriginalMessage{
 			Text: `bb release --help`,

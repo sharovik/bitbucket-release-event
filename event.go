@@ -5,6 +5,7 @@ import (
 	"github.com/sharovik/devbot/internal/helper"
 	"time"
 
+
 	"github.com/sharovik/devbot/internal/container"
 	"github.com/sharovik/devbot/internal/dto"
 	"github.com/sharovik/devbot/internal/log"
@@ -60,15 +61,15 @@ func (e ReleaseEvent) Install() error {
 	log.Logger().Debug().
 		Str("event_name", EventName).
 		Str("event_version", EventVersion).
-		Msg("Triggered event installation")
+    Msg("Start event Install")
 
 	return container.C.Dictionary.InstallEvent(
-		EventName,      //We specify the event name which will be used for scenario generation
-		EventVersion,   //This will be set during the event creation
-		"bb release", //Actual question, which system will wait and which will trigger our event
+		EventName,                              //We specify the event name which will be used for scenario generation
+		EventVersion,                           //This will be set during the event creation
+		"bb release",                           //Actual question, which system will wait and which will trigger our event
 		"Ok, let me check these pull-requests", //Answer which will be used by the bot
-		"(?i)bb release", //Optional field. This is regular expression which can be used for question parsing.
-		"", //Optional field. This is a regex group and it can be used for parsing the match group from the regexp result
+		"(?i)bb release",                       //Optional field. This is regular expression which can be used for question parsing.
+		"", 
 	)
 }
 
