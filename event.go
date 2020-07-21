@@ -130,7 +130,7 @@ func (ReleaseEvent) Execute(message dto.BaseChatMessage) (dto.BaseChatMessage, e
 			Str("channel", container.C.Config.BitBucketConfig.ReleaseChannel).
 			Msg("Send release-confirmation message")
 
-		response, statusCode, err := container.C.SlackClient.SendMessage(dto.SlackRequestChatPostMessage{
+		response, statusCode, err := container.C.MessageClient.SendMessage(dto.SlackRequestChatPostMessage{
 			Channel:           container.C.Config.BitBucketConfig.ReleaseChannel,
 			Text:              fmt.Sprintf("There were release triggered by <@%s>. %s", answer.OriginalMessage.User, resultText),
 			AsUser:            true,
