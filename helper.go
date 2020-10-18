@@ -34,7 +34,7 @@ func canBeMergedPullRequestsText(canBeMerged map[string]PullRequest) string {
 		return "There is no pull-requests, which can be merged."
 	}
 
-	var text = "Next pull-requests is will be merged:\n"
+	var text = "Next pull-requests can be merged:\n"
 
 	for pullRequestURL, pullRequest := range canBeMerged {
 		text += fmt.Sprintf("[#%d] %s \n", pullRequest.ID, pullRequestURL)
@@ -409,7 +409,9 @@ func prepareReleaseTitle(currentTitle string) string {
 func filterOutFailedRepositories(failedPullRequests map[string]failedToMerge, canBeMergedPullRequestsList map[string]PullRequest, canBeMergedByRepository map[string]map[string]PullRequest) (map[string]PullRequest, map[string]map[string]PullRequest) {
 	for url, pullRequest := range failedPullRequests {
 		delete(canBeMergedPullRequestsList, url)
-		delete(canBeMergedByRepository, pullRequest.PullRequest.RepositorySlug)
+		if len(canBeMergedByRepository[pullRequest.PullRequest.RepositorySlug]) == 1 {
+			delete(canBeMergedByRepository, pullRequest.PullRequest.RepositorySlug)
+		}
 	}
 
 	return canBeMergedPullRequestsList, canBeMergedByRepository
