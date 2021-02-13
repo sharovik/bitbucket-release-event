@@ -3,6 +3,7 @@ package bitbucketrelease
 import (
 	"errors"
 	"fmt"
+	"github.com/sharovik/devbot/internal/helper"
 	"regexp"
 	"strconv"
 	"strings"
@@ -34,7 +35,7 @@ func canBeMergedPullRequestsText(canBeMerged map[string]PullRequest) string {
 		return "There is no pull-requests, which can be merged."
 	}
 
-	var text = "Next pull-requests can be merged:\n"
+	var text = "From received pull-requests, next are good to go:\n"
 
 	for pullRequestURL, pullRequest := range canBeMerged {
 		text += fmt.Sprintf("[#%d] %s \n", pullRequest.ID, pullRequestURL)
@@ -65,7 +66,11 @@ func checkPullRequests(items []PullRequest) (map[string]PullRequest, map[string]
 
 		replacer := strings.NewReplacer("\\", "")
 		pullRequest.Title = info.Title
+		pullRequest.BranchName = info.Source.Branch.Name
+		pullRequest.RepositorySlug = info.Source.Repository.Name
 		pullRequest.Description = replacer.Replace(info.Description)
+
+		cleanPullRequestURL = fmt.Sprintf("https://bitbucket.org/%s/%s/pull-requests/%d", pullRequest.Workspace, pullRequest.RepositorySlug, pullRequest.ID)
 
 		if !isPullRequestAlreadyMerged(info) {
 			failedPullRequests[cleanPullRequestURL] = failedToMerge{
@@ -260,6 +265,11 @@ func mergePullRequests(pullRequests map[string]PullRequest, strategy string) (st
 			repository = pullRequest.RepositorySlug
 		}
 
+		if isReleaseBranchName(pullRequest.BranchName) {
+			strategy = client.StrategyMerge
+			releaseText += fmt.Sprintf("I merge `#%d` pull-request using `merge` strategy, because it is a release pull-request.\n", pullRequest.ID)
+		}
+
 		response, err := container.C.BibBucketClient.MergePullRequest(pullRequest.Workspace, pullRequest.RepositorySlug, pullRequest.ID, pullRequest.Description, strategy)
 		if err != nil {
 			releaseText += fmt.Sprintf("I cannot merge the pull-request #%d because of error `%s`", pullRequest.ID, err.Error())
@@ -290,6 +300,9 @@ func mergePullRequests(pullRequests map[string]PullRequest, strategy string) (st
 
 func checkIfRequiredReviewersExists(info dto.BitBucketPullRequestInfoResponse) (bool, failedToMerge) {
 	requiredReviewers := container.C.Config.BitBucketConfig.RequiredReviewers
+	if len(requiredReviewers) == 0 {
+		return true, failedToMerge{}
+	}
 
 	var (
 		existsInReviewers = false
@@ -327,6 +340,9 @@ func checkIfRequiredReviewersExists(info dto.BitBucketPullRequestInfoResponse) (
 
 func checkIfOneOfRequiredReviewersApprovedPullRequest(info dto.BitBucketPullRequestInfoResponse) bool {
 	requiredReviewers := container.C.Config.BitBucketConfig.RequiredReviewers
+	if len(requiredReviewers) == 0 {
+		return true
+	}
 
 	var isPullRequestApprovedByReviewers = false
 	for _, reviewerUuID := range requiredReviewers {
@@ -357,7 +373,7 @@ func receivedPullRequestsText(foundPullRequests ReceivedPullRequests) string {
 
 	var pullRequestsString = pullRequestStringAnswer
 	for _, item := range foundPullRequests.Items {
-		pullRequestsString = pullRequestsString + fmt.Sprintf("Pull-request #%d [repository: %s]\n", item.ID, item.RepositorySlug)
+		pullRequestsString = pullRequestsString + fmt.Sprintf("Pull-request #%d\n", item.ID)
 	}
 
 	return pullRequestsString
@@ -415,4 +431,15 @@ func filterOutFailedRepositories(failedPullRequests map[string]failedToMerge, ca
 	}
 
 	return canBeMergedPullRequestsList, canBeMergedByRepository
+}
+
+func isReleaseBranchName(branchName string) bool {
+	found, err := helper.IsFoundMatches("(?i)^(release\\/\\w+)", branchName)
+	if err != nil {
+		log.Logger().AddError(err).
+			Str("branch", branchName).
+			Msg("Failed to find the release-branch matches in the branch name.")
+	}
+
+	return found
 }
