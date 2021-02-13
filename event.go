@@ -16,7 +16,7 @@ const (
 	EventName         = "bitbucket_release"
 	EventVersion      = "1.0.2"
 	pullRequestsRegex = `(?m)https:\/\/bitbucket.org\/(?P<workspace>.+)\/(?P<repository_slug>.+)\/pull-requests\/(?P<pull_request_id>\d+)`
-	helpMessage       = "Send me message ```bb release {links-to-pull-requests}```."
+	helpMessage       = "Send me message ```bb release {links-to-pull-requests}``` with the links to the bitbucket pull-requests instead of `{links-to-pull-requests}`.\nExample: bb release https://bitbucket.org/mywork/my-test-repository/pull-requests/1"
 
 	pullRequestStringAnswer   = "I found the next pull-requests:\n"
 	noPullRequestStringAnswer = `I can't find any pull-request in your message`
