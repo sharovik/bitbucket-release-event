@@ -198,7 +198,7 @@ func releaseThePullRequests(canBeMergedPullRequestList map[string]PullRequest, c
 		}
 
 		releaseText += fmt.Sprintf("\nTrying to merge the %d pull-requests to the `%s` branch  of `%s` repository", len(pullRequests), releaseBranchName, repository)
-		newText, err := mergePullRequests(pullRequests, client.StrategyMerge)
+		newText, err := mergePullRequests(pullRequests, client.StrategySquash)
 		releaseText += fmt.Sprintf("\n%s", newText)
 		if err != nil {
 			log.Logger().AddError(err).Msg("Received error during pull-request merge")
