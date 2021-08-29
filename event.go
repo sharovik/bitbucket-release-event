@@ -2,19 +2,18 @@ package bitbucketrelease
 
 import (
 	"fmt"
-	"github.com/sharovik/devbot/internal/helper"
-	"time"
-
-
+	"github.com/sharovik/devbot/events/bitbucketrelease/bitbucket_release_services"
+	"github.com/sharovik/devbot/events/bitbucketrelease/bitbucketrelease_dto"
 	"github.com/sharovik/devbot/internal/container"
 	"github.com/sharovik/devbot/internal/dto"
+	"github.com/sharovik/devbot/internal/helper"
 	"github.com/sharovik/devbot/internal/log"
 )
 
 //EventName the name of the event
 const (
 	EventName         = "bitbucket_release"
-	EventVersion      = "1.0.2"
+	EventVersion      = "1.1.0"
 	pullRequestsRegex = `(?m)https:\/\/bitbucket.org\/(?P<workspace>.+)\/(?P<repository_slug>.+)\/pull-requests\/(?P<pull_request_id>\d+)`
 	helpMessage       = "Send me message ```bb release {links-to-pull-requests}``` with the links to the bitbucket pull-requests instead of `{links-to-pull-requests}`.\nExample: bb release https://bitbucket.org/mywork/my-test-repository/pull-requests/1"
 
@@ -22,12 +21,11 @@ const (
 	noPullRequestStringAnswer = `I can't find any pull-request in your message`
 
 	pullRequestStateOpen   = "OPEN"
-	pullRequestStateMerged = "MERGED"
 )
 
 //ReceivedPullRequests struct for pull-requests list
 type ReceivedPullRequests struct {
-	Items []PullRequest
+	Items []bitbucketrelease_dto.PullRequest
 }
 
 //PullRequest the pull-request item
@@ -54,7 +52,7 @@ type failedToMerge struct {
 	Reason string
 	Info   dto.BitBucketPullRequestInfoResponse
 	Error  error
-	PullRequest PullRequest
+	PullRequest bitbucketrelease_dto.PullRequest
 }
 
 //Install method for installation of event
@@ -102,50 +100,35 @@ func (ReleaseEvent) Execute(message dto.BaseChatMessage) (dto.BaseChatMessage, e
 	//Next step is a pull-request statuses check
 	canBeMergedPullRequestsList, canBeMergedByRepository, failedPullRequests := checkPullRequests(foundPullRequests.Items)
 
+	//When we have failed pull-requests, we filter them out
 	if len(failedPullRequests) > 0 {
 		filterOutFailedRepositories(failedPullRequests, canBeMergedPullRequestsList, canBeMergedByRepository)
 	}
 
 	//We generate text for pull-requests which cannot be merged
 	if len(failedPullRequests) > 0 {
-		answer.Text += fmt.Sprintf("\n%s", failedPullRequestsText(failedPullRequests))
+		bitbucket_release_services.SendMessageToTheChannel(message.Channel, failedPullRequestsText(failedPullRequests))
 	}
 
-	answer.Text += fmt.Sprintf("\n%s", canBeMergedPullRequestsText(canBeMergedPullRequestsList))
+	bitbucket_release_services.SendMessageToTheChannel(message.Channel, canBeMergedPullRequestsText(canBeMergedPullRequestsList))
 
 	if len(canBeMergedByRepository) == 0 {
 		answer.Text += fmt.Sprintf("\nNothing to release")
 		return answer, nil
 	}
 
-	resultText, err := releaseThePullRequests(canBeMergedPullRequestsList, canBeMergedByRepository)
-	if err != nil {
-		answer.Text += resultText
+	if err := releaseThePullRequests(message, canBeMergedPullRequestsList, canBeMergedByRepository); err != nil {
 		return answer, err
 	}
 
-	answer.Text += fmt.Sprintf("\n%s", resultText)
+	answer.Text += fmt.Sprintf("Done")
 
 	if container.C.Config.BitBucketConfig.ReleaseChannelMessageEnabled && container.C.Config.BitBucketConfig.ReleaseChannel != "" {
 		log.Logger().Debug().
 			Str("channel", container.C.Config.BitBucketConfig.ReleaseChannel).
 			Msg("Send release-confirmation message")
 
-		response, statusCode, err := container.C.MessageClient.SendMessage(dto.SlackRequestChatPostMessage{
-			Channel:           container.C.Config.BitBucketConfig.ReleaseChannel,
-			Text:              fmt.Sprintf("There were release triggered by <@%s>. %s", answer.OriginalMessage.User, resultText),
-			AsUser:            true,
-			Ts:                time.Time{},
-			DictionaryMessage: dto.DictionaryMessage{},
-			OriginalMessage:   dto.SlackResponseEventMessage{},
-		})
-
-		if err != nil {
-			log.Logger().AddError(err).
-				Interface("response", response).
-				Interface("status", statusCode).
-				Msg("Failed to sent answer message")
-		}
+		bitbucket_release_services.SendMessageToTheChannel(container.C.Config.BitBucketConfig.ReleaseChannel, fmt.Sprintf("There were release triggered by <@%s>!", answer.OriginalMessage.User))
 	}
 
 	return answer, nil

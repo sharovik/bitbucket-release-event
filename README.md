@@ -20,13 +20,10 @@ https://bitbucket.org/{your-workspace}/{your-first-repository}/pull-requests/35/
 ```
 The bot tries to parse all pull-requests from your message and does several pull-requests checks:
 1. check the current state of the pull-request. If it's state is different then OPEN, the pull-request cannot be merged
-2. check if the pull-request has someone from the required reviewers which you selected in `BITBUCKET_REQUIRED_REVIEWERS` variable
-3. check if someone from required reviewers approved the pull-request
- 
-In the answer you will receive the status update of the merge process. 
-If there will be more then 2 pull-requests per repository, the bot will try to create a release branch, merge all pull-requests into that branch and then will create the release-pull-request from that branch and share it into the channel.
+2. check if all the reviewers approved the pull-request
+3. tries to merge the pull-request into the destination
+4. if there is more than one pull-request, it will create the release pull-request and merge selected pull-request into new release branch destination
 
-Also you can configure bot to send the report after each "event trigger" to the specific channel. 
 
 ------
 You always can ask bot `bb release --help` to see the usage of that command.
@@ -56,7 +53,7 @@ Copy and paste everything from the **#Bitbucket** section in `.env.example` file
 ### Create BitBucket client
 Here [you can find how to do it](https://github.com/sharovik/devbot/blob/master/documentation/bitbucket_client_configuration.md).
 
-### The main diagram
+### The UseCase diagram
 Here you can see the main flow how this event works
 
 ![The main flow](documentation/images/bitbucket-release-event.png)
