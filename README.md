@@ -11,8 +11,6 @@ If there is more than one pull-request per repository, then bot will create a **
 - [Prerequisites](#prerequisites)
 
 ## How it works
-The event can be triggered by ``bb release`` or ``release`` command. See below the example.
-
 You send the message to the PM of bot with the next text: 
 ```
 release
