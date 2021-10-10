@@ -2,17 +2,20 @@
 The event can merge one or multiple pull-requests into main branch of the repository, to which that pull-request related.
 This is event for [sharovik/devbot](https://github.com/sharovik/devbot) automation bot.
 
-You can use this event for release optimisation of your project/projects. In the message text be specified 1 or multiple pull-requests for multiple repositories, if they are good for merge, then event will try to merge all of them into main branch of repository.
-The event accepts multiple pull-requests for multiple repositories. If there is more than one pull-request per repository, then event will create a **release pull-request**, which should be approved by on of required reviewers and will send this pull-request link in the answer of the message.
+You can use this event for release optimisation of your project/projects. In the message should be specified 1 or multiple pull-requests. If the PRs are good to go, then bot will try to merge all of them into the main branch of selected repositories.
+The event accepts multiple pull-requests for multiple repositories. 
+If there is more than one pull-request per repository, then bot will create a **release pull-request**, which should be approved by one of required reviewers, also will send this pull-request link to the channel, where it was triggered.
 
 ## Table of contents
 - [How it works](#how-it-works)
 - [Prerequisites](#prerequisites)
 
 ## How it works
+The event can be triggered by ``bb release`` or ``release`` command. See below the example.
+
 You send the message to the PM of bot with the next text: 
 ```
-bb release
+release
 https://bitbucket.org/{your-workspace}/{your-first-repository}/pull-requests/1/readmemd-edited-online-with-bitbucket/diff
 https://bitbucket.org/{your-workspace}/{your-second-repository}/pull-requests/20
 https://bitbucket.org/{your-workspace}/{your-second-repository}/pull-requests/36/release-pull-request/diff
@@ -26,10 +29,10 @@ The bot tries to parse all pull-requests from your message and does several pull
 
 
 ------
-You always can ask bot `bb release --help` to see the usage of that command.
+You can always ask bot `release --help` to see the usage of that command.
 
 ## Prerequisites
-Before you will start use this event please be aware of these steps
+Before you will start use this event, please be aware of these steps
 
 ### Clone into devbot project
 ```
