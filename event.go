@@ -5,6 +5,7 @@ import (
 	"github.com/sharovik/devbot/events/bitbucketrelease/bitbucket_release_services"
 	"github.com/sharovik/devbot/events/bitbucketrelease/bitbucketrelease_dto"
 	"github.com/sharovik/devbot/internal/container"
+	"github.com/sharovik/devbot/internal/database"
 	"github.com/sharovik/devbot/internal/dto"
 	"github.com/sharovik/devbot/internal/helper"
 	"github.com/sharovik/devbot/internal/log"
@@ -44,9 +45,14 @@ type ReleaseEvent struct {
 }
 
 //Event - object which is ready to use
-var Event = ReleaseEvent{
+var (
+	Event = ReleaseEvent{
 	EventName: EventName,
 }
+	m = []database.BaseMigrationInterface{
+		UpdateReleaseTriggerMigration{},
+	}
+)
 
 type failedToMerge struct {
 	Reason string
@@ -65,7 +71,7 @@ func (e ReleaseEvent) Install() error {
 	return container.C.Dictionary.InstallEvent(
 		EventName,                              //We specify the event name which will be used for scenario generation
 		EventVersion,                           //This will be set during the event creation
-		"bb release",                           //Actual question, which system will wait and which will trigger our event
+		"release",                           //Actual question, which system will wait and which will trigger our event
 		"Ok, give me a minute", //Answer which will be used by the bot
 		"(?i)bb release",                       //Optional field. This is regular expression which can be used for question parsing.
 		"", 
@@ -74,7 +80,11 @@ func (e ReleaseEvent) Install() error {
 
 //Update the method applies updates
 func (e ReleaseEvent) Update() error {
-	return nil
+	for _, migration := range m {
+		container.C.MigrationService.SetMigration(migration)
+	}
+
+	return container.C.MigrationService.RunMigrations()
 }
 
 //Execute the main method for event execution
