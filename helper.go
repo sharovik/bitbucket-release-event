@@ -151,10 +151,15 @@ func isApprovedByReviewers(info dto.BitBucketPullRequestInfoResponse) bool {
 		return true
 	}
 
+	var numberApprovals = 0
 	for _, user := range info.Participants {
-		if !user.Approved {
-			return false
+		if user.Approved {
+			numberApprovals++
 		}
+	}
+
+	if numberApprovals < 2 {
+		return false
 	}
 
 	return true
