@@ -16,7 +16,7 @@ const (
 	EventName         = "bitbucket_release"
 	EventVersion      = "1.1.0"
 	pullRequestsRegex = `(?m)https:\/\/bitbucket.org\/(?P<workspace>.+)\/(?P<repository_slug>.+)\/pull-requests\/(?P<pull_request_id>\d+)`
-	helpMessage       = "Send me message ```bb release {links-to-pull-requests}``` with the links to the bitbucket pull-requests instead of `{links-to-pull-requests}`.\nExample: bb release https://bitbucket.org/mywork/my-test-repository/pull-requests/1"
+	helpMessage       = "Send me message ```release {links-to-pull-requests}``` with the links to the bitbucket pull-requests instead of `{links-to-pull-requests}`.\nExample: bb release https://bitbucket.org/mywork/my-test-repository/pull-requests/1"
 
 	pullRequestStringAnswer   = "I found the next pull-requests:\n"
 	noPullRequestStringAnswer = `I can't find any pull-request in your message`
@@ -73,7 +73,7 @@ func (e ReleaseEvent) Install() error {
 		EventVersion,                           //This will be set during the event creation
 		"release",                           //Actual question, which system will wait and which will trigger our event
 		"Ok, give me a minute", //Answer which will be used by the bot
-		"(?i)bb release",                       //Optional field. This is regular expression which can be used for question parsing.
+		"(?i)release",                       //Optional field. This is regular expression which can be used for question parsing.
 		"", 
 	)
 }
