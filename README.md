@@ -27,7 +27,7 @@ The bot tries to parse all pull-requests from your message and does several pull
 
 
 ------
-You can always ask bot `release --help` to see the usage of that command.
+You can always ask bot `release --help` or `bb release --help` to see the usage of that command.
 
 ## Prerequisites
 Before you will start use this event, please be aware of these steps
@@ -45,7 +45,11 @@ import "github.com/sharovik/devbot/events/bitbucketrelease"
 ```
 3. add this event into `defined-events.go` file to the defined events map object
 ``` 
-DefinedEvents.Events[bitbucketrelease.EventName] = bitbucketrelease.Event
+// DefinedEvents variable contains the list of events, which will be installed/used by the devbot
+var DefinedEvents = []event.DefinedEventInterface{
+	//...
+	bitbucketrelease.Event,
+}
 ```
 
 ### Prepare environment variables in your .env
