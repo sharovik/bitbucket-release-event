@@ -52,9 +52,9 @@ func checkPullRequests(items []bitbucketrelease_dto.PullRequest) (map[string]bit
 		info, err := container.C.BibBucketClient.PullRequestInfo(pullRequest.Workspace, pullRequest.RepositorySlug, pullRequest.ID)
 		if err != nil {
 			failedPullRequests[cleanPullRequestURL] = failedToMerge{
-				Reason: err.Error(),
-				Info:   info,
-				Error:  err,
+				Reason:      err.Error(),
+				Info:        info,
+				Error:       err,
 				PullRequest: pullRequest,
 			}
 
@@ -69,11 +69,11 @@ func checkPullRequests(items []bitbucketrelease_dto.PullRequest) (map[string]bit
 
 		cleanPullRequestURL = fmt.Sprintf("https://bitbucket.org/%s/%s/pull-requests/%d", pullRequest.Workspace, pullRequest.RepositorySlug, pullRequest.ID)
 
-		if !isPullRequestAlreadyMerged(info) {
+		if isPullRequestAlreadyMerged(info) {
 			failedPullRequests[cleanPullRequestURL] = failedToMerge{
-				Reason: fmt.Sprintf("The state should be %s, instead of it %s received.", pullRequestStateOpen, info.State),
-				Info:   info,
-				Error:  nil,
+				Reason:      fmt.Sprintf("The state should be %s, instead of it %s received.", pullRequestStateOpen, info.State),
+				Info:        info,
+				Error:       nil,
 				PullRequest: pullRequest,
 			}
 
@@ -83,9 +83,9 @@ func checkPullRequests(items []bitbucketrelease_dto.PullRequest) (map[string]bit
 		isPullRequestApprovedByReviewers := isApprovedByReviewers(info)
 		if !isPullRequestApprovedByReviewers {
 			failedPullRequests[cleanPullRequestURL] = failedToMerge{
-				Reason: "Not all reviewers approved the change.",
-				Info:   info,
-				Error:  nil,
+				Reason:      "Not all reviewers approved the change.",
+				Info:        info,
+				Error:       nil,
 				PullRequest: pullRequest,
 			}
 
@@ -167,10 +167,10 @@ func isApprovedByReviewers(info dto.BitBucketPullRequestInfoResponse) bool {
 
 func isPullRequestAlreadyMerged(info dto.BitBucketPullRequestInfoResponse) bool {
 	if info.State == pullRequestStateOpen {
-		return true
+		return false
 	}
 
-	return false
+	return true
 }
 
 func receivedPullRequestsText(foundPullRequests ReceivedPullRequests) string {

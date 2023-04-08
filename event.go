@@ -7,29 +7,28 @@ import (
 	"github.com/sharovik/devbot/internal/container"
 	"github.com/sharovik/devbot/internal/database"
 	"github.com/sharovik/devbot/internal/dto"
-	"github.com/sharovik/devbot/internal/helper"
 	"github.com/sharovik/devbot/internal/log"
 )
 
-//EventName the name of the event
+// EventName the name of the event
 const (
 	EventName         = "bitbucket_release"
-	EventVersion      = "1.1.0"
+	EventVersion      = "2.0.0"
 	pullRequestsRegex = `(?m)https:\/\/bitbucket.org\/(?P<workspace>.+)\/(?P<repository_slug>.+)\/pull-requests\/(?P<pull_request_id>\d+)`
 	helpMessage       = "Send me message ```release {links-to-pull-requests}``` with the links to the bitbucket pull-requests instead of `{links-to-pull-requests}`.\nExample: bb release https://bitbucket.org/mywork/my-test-repository/pull-requests/1"
 
 	pullRequestStringAnswer   = "I found the next pull-requests:\n"
 	noPullRequestStringAnswer = `I can't find any pull-request in your message`
 
-	pullRequestStateOpen   = "OPEN"
+	pullRequestStateOpen = "OPEN"
 )
 
-//ReceivedPullRequests struct for pull-requests list
+// ReceivedPullRequests struct for pull-requests list
 type ReceivedPullRequests struct {
 	Items []bitbucketrelease_dto.PullRequest
 }
 
-//PullRequest the pull-request item
+// PullRequest the pull-request item
 type PullRequest struct {
 	ID             int64
 	RepositorySlug string
@@ -39,47 +38,62 @@ type PullRequest struct {
 	Description    string
 }
 
-//ReleaseEvent event of BitBucket release
-type ReleaseEvent struct {
-	EventName string
+// EventStruct event of BitBucket release
+type EventStruct struct {
 }
 
-//Event - object which is ready to use
+// Event - object which is ready to use
 var (
-	Event = ReleaseEvent{
-	EventName: EventName,
-}
-	m = []database.BaseMigrationInterface{
-		UpdateReleaseTriggerMigration{},
-	}
+	Event = EventStruct{}
+	m     = []database.BaseMigrationInterface{}
 )
 
 type failedToMerge struct {
-	Reason string
-	Info   dto.BitBucketPullRequestInfoResponse
-	Error  error
+	Reason      string
+	Info        dto.BitBucketPullRequestInfoResponse
+	Error       error
 	PullRequest bitbucketrelease_dto.PullRequest
 }
 
-//Install method for installation of event
-func (e ReleaseEvent) Install() error {
+func (e EventStruct) Help() string {
+	return helpMessage
+}
+
+func (e EventStruct) Alias() string {
+	return EventName
+}
+
+// Install method for installation of event
+func (e EventStruct) Install() error {
 	log.Logger().Debug().
 		Str("event_name", EventName).
 		Str("event_version", EventVersion).
-    Msg("Start event Install")
+		Msg("Triggered event installation")
 
-	return container.C.Dictionary.InstallEvent(
-		EventName,                              //We specify the event name which will be used for scenario generation
-		EventVersion,                           //This will be set during the event creation
-		"release",                           //Actual question, which system will wait and which will trigger our event
-		"Ok, give me a minute", //Answer which will be used by the bot
-		"(?i)release",                       //Optional field. This is regular expression which can be used for question parsing.
-		"", 
-	)
+	if err := container.C.Dictionary.InstallNewEventScenario(database.EventScenario{
+		EventName:    EventName,
+		EventVersion: EventVersion,
+		Questions: []database.Question{
+			{
+				Question:      "release",
+				QuestionRegex: "(?i)(release)",
+				Answer:        "Ok, give me a minute",
+			},
+			{
+				Question:      "bb release",
+				QuestionRegex: "(?i)(bb release)",
+				Answer:        "Ok, give me a minute",
+			},
+		},
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-//Update the method applies updates
-func (e ReleaseEvent) Update() error {
+// Update the method applies updates
+func (e EventStruct) Update() error {
 	for _, migration := range m {
 		container.C.MigrationService.SetMigration(migration)
 	}
@@ -87,19 +101,9 @@ func (e ReleaseEvent) Update() error {
 	return container.C.MigrationService.RunMigrations()
 }
 
-//Execute the main method for event execution
-func (ReleaseEvent) Execute(message dto.BaseChatMessage) (dto.BaseChatMessage, error) {
+// Execute the main method for event execution
+func (EventStruct) Execute(message dto.BaseChatMessage) (dto.BaseChatMessage, error) {
 	var answer = message
-
-	isHelpAnswerTriggered, err := helper.HelpMessageShouldBeTriggered(answer.OriginalMessage.Text)
-	if err != nil {
-		log.Logger().Warn().Err(err).Msg("Something went wrong with help message parsing")
-	}
-
-	if isHelpAnswerTriggered {
-		answer.Text = helpMessage
-		return answer, nil
-	}
 
 	//First we need to find all the pull-requests in received message
 	foundPullRequests := findAllPullRequestsInText(pullRequestsRegex, answer.OriginalMessage.Text)

@@ -50,11 +50,11 @@ func MergePullRequests(pullRequests map[string]bitbucketrelease_dto.PullRequest,
 	}
 
 	if len(pullRequests) == 1 {
-		releaseText += fmt.Sprintf("\nI merged pull-request #`%d` into destination branch of repository `%s` :)", lastPullRequest.ID, repository)
+		releaseText += fmt.Sprintf("\nI merged pull-request #`%d` into destination branch of repository `%s`.", lastPullRequest.ID, repository)
 		return releaseText, nil
 	}
 
-	releaseText += fmt.Sprintf("\nI merged all pull-requests for repository `%s` into destination branch :)", repository)
+	releaseText += fmt.Sprintf("\nI merged all pull-requests for repository `%s` into destination branch.", repository)
 
 	return releaseText, nil
 }
