@@ -158,19 +158,11 @@ func isApprovedByReviewers(info dto.BitBucketPullRequestInfoResponse) bool {
 		}
 	}
 
-	if numberApprovals < 2 {
-		return false
-	}
-
-	return true
+	return numberApprovals >= 2
 }
 
 func isPullRequestAlreadyMerged(info dto.BitBucketPullRequestInfoResponse) bool {
-	if info.State == pullRequestStateOpen {
-		return false
-	}
-
-	return true
+	return info.State != pullRequestStateOpen
 }
 
 func receivedPullRequestsText(foundPullRequests ReceivedPullRequests) string {

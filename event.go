@@ -127,7 +127,7 @@ func (EventStruct) Execute(message dto.BaseChatMessage) (dto.BaseChatMessage, er
 	bitbucket_release_services.SendMessageToTheChannel(message.Channel, canBeMergedPullRequestsText(canBeMergedPullRequestsList))
 
 	if len(canBeMergedByRepository) == 0 {
-		answer.Text += fmt.Sprintf("\nNothing to release")
+		answer.Text += "\nNothing to release"
 		return answer, nil
 	}
 
@@ -135,7 +135,7 @@ func (EventStruct) Execute(message dto.BaseChatMessage) (dto.BaseChatMessage, er
 		return answer, err
 	}
 
-	answer.Text += fmt.Sprintf("Done")
+	answer.Text += "Done"
 
 	if container.C.Config.BitBucketConfig.ReleaseChannelMessageEnabled && container.C.Config.BitBucketConfig.ReleaseChannel != "" {
 		log.Logger().Debug().
