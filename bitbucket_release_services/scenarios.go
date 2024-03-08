@@ -43,7 +43,7 @@ func MergeMultiplePullRequestsScenario(message dto.BaseChatMessage, repository s
 			workspace = pullRequest.Workspace
 		}
 
-		releasePullRequestDescription += fmt.Sprintf("%s\n", pullRequest.Description)
+		releasePullRequestDescription += fmt.Sprintf("%s\n", pullRequest.Title)
 
 		//If we don't have any created release branch for this repository the we need to create it
 		if repositories[repository].Name == "" {
